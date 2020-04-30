@@ -1,12 +1,14 @@
 /*-----------------------------------------------------------------
-2020.4.4:       ·¢ÏÖ²ĞÓ°ÊÇ¡°×Ô¼º³Ô×Ô¼º¡±µÄbug£¬¼ÓÈë½á¹¹ÌåÔÚºóÌ¨mapÀï´¢´æ¹ì¼£¼´¿É
+2020.4.4:       å‘ç°æ®‹å½±æ˜¯â€œè‡ªå·±åƒè‡ªå·±â€çš„bugï¼ŒåŠ å…¥ç»“æ„ä½“åœ¨åå°mapé‡Œå‚¨å­˜è½¨è¿¹å³å¯
 
-2020.4.6£º      ¼ÓÈë45¶È½ÇĞ±Å×¹¦ÄÜ£¬ÓÅ»¯Ç½½ÇÀïÅö×²·´µ¯²»ÁËµÄbug
+2020.4.6ï¼š      åŠ å…¥45åº¦è§’æ–œæŠ›åŠŸèƒ½ï¼Œä¼˜åŒ–å¢™è§’é‡Œç¢°æ’åå¼¹ä¸äº†çš„bug
 
-2020.4.27:      ²Ëµ¥¸ã¶¨..Ä¬ÈÏµØÍ¼»æÖÆÖĞ,×Ô¶¨ÒåµØÍ¼¼´½«¼ÓÈë
+2020.4.27:      èœå•æå®š..é»˜è®¤åœ°å›¾ç»˜åˆ¶ä¸­,è‡ªå®šä¹‰åœ°å›¾å³å°†åŠ å…¥
 
-Ä¿Ç°bug: 1.²Ëµ¥½çÃæÎ´ÖªµÄÏÔÊ¾ÉÙ×Ö
-         2.ºóÆÚÎ´ÖªÔ­ÒòÓĞ¼°ÉÙÊıÉßÉíÌå½Úµã²ĞÁô
+ç›®å‰bug: 1.èœå•ç•Œé¢æœªçŸ¥çš„æ˜¾ç¤ºå°‘å­—
+         2.åæœŸæœªçŸ¥åŸå› æœ‰åŠå°‘æ•°è›‡èº«ä½“èŠ‚ç‚¹æ®‹ç•™
+         
+         CREATED      BY      JLHENRY.
 ------------------------------------------------------------------
 */
 #define _CRT_SECURE_NO_WARNINGS
@@ -16,15 +18,15 @@
 #include <string.h>
 #include <windows.h>
 #define PI 3.14
-#define V 26// Å×³öËÙ¶È  Ïë¸Ä×Ô¼º¸Ä
+#define V 26// æŠ›å‡ºé€Ÿåº¦  æƒ³æ”¹è‡ªå·±æ”¹
 const double g = 10;
-//////////È«¾Ö±äÁ¿
+//////////å…¨å±€å˜é‡
 int width = 40, length = 150;
 char map[1000][1000];
 char _map[1000][1000];
 int i, j, old_x, old_y, flag, color, if_miss, step, max, menu_x, menu_y, goal = 0, life;
 int left = 1, right = 21;
-double x, y, Vx, Vy, s1, s2, X, Y;//Vx×İÏò£¬VyºáÏò
+double x, y, Vx, Vy, s1, s2, X, Y;//Vxçºµå‘ï¼ŒVyæ¨ªå‘
 char wall = '#', air = ' ', brick = '&', food = '*';
 char ch, ch1;
 double C[8] = { 0, 10, 30,45,70, 90 };
@@ -38,7 +40,7 @@ double temp;
 double t1, t2;
 
 ///////
-struct Step //¹ì¼£½á¹¹Ìå
+struct Step //è½¨è¿¹ç»“æ„ä½“
 {
     int x;
     int y;
@@ -74,9 +76,9 @@ char End[200][800] = {
     {"###    #######   ##    ##   ## "},
     {"       ##   ##         ##      "},
     {"                               "},
-    {"     °´ Á½ ´Î »Ø ³µ ¼Ì Ğø      "}//ÆÚ´ı¼ÓÈë Created By J.Henry
+    {"     æŒ‰ ä¸¤ æ¬¡ å› è½¦ ç»§ ç»­      "}//æœŸå¾…åŠ å…¥ Created By J.Henry
 };
-void gotoxy(int x, int y) //×ø±êº¯Êı  ÔÚwindows.hÖĞ   ²»¹ıÓÃÊ±Òª¼ÓÉÏÕâÒ»¶Î£¨¹Ì¶¨£©
+void gotoxy(int x, int y) //åæ ‡å‡½æ•°  åœ¨windows.hä¸­   ä¸è¿‡ç”¨æ—¶è¦åŠ ä¸Šè¿™ä¸€æ®µï¼ˆå›ºå®šï¼‰
 {
     HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
     COORD pos;
@@ -84,14 +86,14 @@ void gotoxy(int x, int y) //×ø±êº¯Êı  ÔÚwindows.hÖĞ   ²»¹ıÓÃÊ±Òª¼ÓÉÏÕâÒ»¶Î£¨¹Ì¶¨
     pos.Y = y;
     SetConsoleCursorPosition(handle, pos);
 }
-void HideCursor() //¹â±êÒş²Ø
+void HideCursor() //å…‰æ ‡éšè—
 {
-    CONSOLE_CURSOR_INFO cursor_info = { 1, 0 }; //ºó±ßµÄ0´ú±í¹â±ê²»¿É¼û
+    CONSOLE_CURSOR_INFO cursor_info = { 1, 0 }; //åè¾¹çš„0ä»£è¡¨å…‰æ ‡ä¸å¯è§
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursor_info);
 }
 void angle_switch()
 {
-    printf("-----Ñ¡Ôñ³õÊ¼Å×³ö½Ç¶È-----\n");
+    printf("-----é€‰æ‹©åˆå§‹æŠ›å‡ºè§’åº¦-----\n");
     gotoxy(length / 2, width + 4);
     printf("1.        0               \n");
     gotoxy(length / 2, width + 5);
@@ -101,11 +103,11 @@ void angle_switch()
     gotoxy(length / 2, width + 7);
     printf("4.       45               \n");
     gotoxy(length / 2, width + 8);
-    printf("5.       70(ÍÆ¼ö)         \n");
+    printf("5.       70(æ¨è)         \n");
     gotoxy(length / 2, width + 9);
     printf("6.       90               \n");
     gotoxy(length / 2, width + 10);
-    printf("----°´Q·µ»Ø,°´pÔİÍ£-------\n");
+    printf("----æŒ‰Qè¿”å›,æŒ‰pæš‚åœ-------\n");
 }
 void end()
 {
@@ -126,16 +128,16 @@ void  menu()
     char temp;
     char menu[40][40] = {
     {"     <--------------->     "},
-    {"     <  ´ò×©¿é¹ş     >     "},
+    {"     <  æ‰“ç –å—å“ˆ     >     "},
     {"     <--------------->     "},
     {"                           "},
-    {"     <1>¿ªÊ¼ÓÎÏ·¹ş   <1>     "},
+    {"     <1>å¼€å§‹æ¸¸æˆå“ˆ   <1>     "},
     {"                             "},
-    {"     <2>±à¼­ÓÎÏ·¹ş   <2>     "},
+    {"     <2>ç¼–è¾‘æ¸¸æˆå“ˆ   <2>     "},
     {"                             "},
-    {"     <3>ÍË³öÓÎÏ·¹ş   <3>     "},
+    {"     <3>é€€å‡ºæ¸¸æˆå“ˆ   <3>     "},
     {"                             "},
-    {"     <4>¸ü¶à¹ş       <4>     "},
+    {"     <4>æ›´å¤šå“ˆ       <4>     "},
     };
 
     HideCursor();
@@ -168,7 +170,7 @@ void init()
     {
         gotoxy(0, 0);
         for (i = 0; i <= width; i++)
-        { //Éú³ÉµØÍ¼Ä£°å²¢°Ñ×ø±ê·ÅÈëmapÖĞ
+        { //ç”Ÿæˆåœ°å›¾æ¨¡æ¿å¹¶æŠŠåæ ‡æ”¾å…¥mapä¸­
             for (j = 0; j <= length; j++)
             {
                 if (i == 0 || i == width || j == 0 || j == length || i == 39 && j >= left && j <= right || (i == width / 3 || i == 2 * width / 3) && (j >= 63 && j <= 87))
@@ -179,7 +181,7 @@ void init()
             }
         }
         for (i = 0; i <= width; i++)
-        { //²¼ÖÃ×©¿ébrick
+        { //å¸ƒç½®ç –å—brick
             for (j = 0; j <= length; j++)
             {
 
@@ -206,17 +208,17 @@ void init()
     {
         food_num = 100;
         while (food_num--)
-        { //Ì°³ÔÉßÉú³ÉÊ³Îï
+        { //è´ªåƒè›‡ç”Ÿæˆé£Ÿç‰©
             a = rand() % width;
             b = rand() % length;
             if ((a >= width / 3 && a <= width * 2 / 3) && (b >= length * 2 / 5 && b <= length * 3 / 5) || a == 0 || b == 0 || a == width || b == length || map[a][b] == brick || map[a][b] == wall)
-                continue;//ÕâÀï²»·ÅÊ³Îï
+                continue;//è¿™é‡Œä¸æ”¾é£Ÿç‰©
             else
                 map[a][b] = food;
         }
     }
     gotoxy(0, 0);
-    //´òÓ¡µØÍ¼
+    //æ‰“å°åœ°å›¾
 
     for (i = 0; i <= width; i++)
     {
@@ -225,7 +227,7 @@ void init()
             gotoxy(j, i);
             if (map[i][j] == wall && i != width)
             {
-                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 60);//¿ØÖÆwall's fore and backgroundÑÕÉ«
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 60);//æ§åˆ¶wall's fore and backgroundé¢œè‰²
                 printf("%c", wall);
             }
             if (map[i][j] == air)
@@ -250,70 +252,70 @@ void init()
             }
 
         }
-        printf("\n");//£¡£¡£¡·ÀÖ¹ÂÒÂë£¡£¡£¡
+        printf("\n");//ï¼ï¼ï¼é˜²æ­¢ä¹±ç ï¼ï¼ï¼
     }
 
 }
-///////////Å×ÎïÏß
+///////////æŠ›ç‰©çº¿
 void auto_change()
 {
 
-    //ÉßÉíÑÕÉ«
+    //è›‡èº«é¢œè‰²
     switch (color)
     {
     case 0:
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 60);
-        break; //À¶É«
+        break; //è“è‰²
     case 1:
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 70);
-        break; //ºìÉ«
+        break; //çº¢è‰²
     case 2:
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 40);
-        break; //ÂÌÉ«
+        break; //ç»¿è‰²
     case 3:
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 30);
-        break; //ÉîÀ¶É«
+        break; //æ·±è“è‰²
     case 4:
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 128);
-        break; //×ÏÉ«
+        break; //ç´«è‰²
     }
     HideCursor();
     gotoxy(s[step].y, s[step].x);
     printf(" ");
-    map[s[step].x][s[step].y]++;//map´ËÊ±×÷ºóÌ¨Êı×é£¬½Úµã×ø±ê´æÈë£¬·ÀÖ¹×Ô¼º³Ô×Ô¼º
+    map[s[step].x][s[step].y]++;//mapæ­¤æ—¶ä½œåå°æ•°ç»„ï¼ŒèŠ‚ç‚¹åæ ‡å­˜å…¥ï¼Œé˜²æ­¢è‡ªå·±åƒè‡ªå·±
     step++;
 
     /*-------------------------------------------------------
-    ºËĞÄ¹«Ê½£º   ×İÏò£ºX = X0 + Vx*t + 1/2*g*  mnVX*t*t;
-                ºáÏò£ºY = Y0 + Vy*t;
+    æ ¸å¿ƒå…¬å¼ï¼š   çºµå‘ï¼šX = X0 + Vx*t + 1/2*g*  mnVX*t*t;
+                æ¨ªå‘ï¼šY = Y0 + Vy*t;
 
-    ºËĞÄË¼Ïë£º  Èç¹ûÑ¡ÔñÊ±¼ä×÷ÎªÒÆ¶¯²Î¿¼£¬ÔòÃ¿Ãë»á³öÏÖµãÏà²îÌ«Ô¶
-                ÕâÀï·´¹ıÀ´£¬ÒÔÁ¬ĞøÎªÇ°Ìá£¬³¢ÊÔÊµÏÖ£º
+    æ ¸å¿ƒæ€æƒ³ï¼š  å¦‚æœé€‰æ‹©æ—¶é—´ä½œä¸ºç§»åŠ¨å‚è€ƒï¼Œåˆ™æ¯ç§’ä¼šå‡ºç°ç‚¹ç›¸å·®å¤ªè¿œ
+                è¿™é‡Œåè¿‡æ¥ï¼Œä»¥è¿ç»­ä¸ºå‰æï¼Œå°è¯•å®ç°ï¼š
 
-                ·Ö±ğËã³ö X Ôö¼ÓÒ»¸öµ¥Î»³¤¶È Ó¦¸ÃÔö¼ÓµÄ Y µÄ¾àÀë s1
-                        Y Ôö¼ÓÒ»¸öµ¥Î»³¤¶È Ó¦¸ÃÔö¼ÓµÄ X µÄ¾àÀë s2
-                        ÓÅÏÈÑ¡Ôñ¸ü¶ÌµÄ×÷ÎªÏÂÒ»´ÎÒÆ¶¯µÄ»ù×¼¡£
+                åˆ†åˆ«ç®—å‡º X å¢åŠ ä¸€ä¸ªå•ä½é•¿åº¦ åº”è¯¥å¢åŠ çš„ Y çš„è·ç¦» s1
+                        Y å¢åŠ ä¸€ä¸ªå•ä½é•¿åº¦ åº”è¯¥å¢åŠ çš„ X çš„è·ç¦» s2
+                        ä¼˜å…ˆé€‰æ‹©æ›´çŸ­çš„ä½œä¸ºä¸‹ä¸€æ¬¡ç§»åŠ¨çš„åŸºå‡†ã€‚
 
-                X Y µÄÔö¼Ó¶¼ÊÇ1
+                X Y çš„å¢åŠ éƒ½æ˜¯1
 
-                X,Y¸¡µãĞÍ£¬Á½¸ö·½ÏòµÄÎ»ÒÆÀÛ¼Óµ½ËûÁ½ÉíÉÏ£¬¶øgotoxy()×ø±êÖ»ÄÜÊÇint £¬¹ÊÃ¿´ÎÓÃold_x,old_yÀ´³Ğ½ÓX,Y
+                X,Yæµ®ç‚¹å‹ï¼Œä¸¤ä¸ªæ–¹å‘çš„ä½ç§»ç´¯åŠ åˆ°ä»–ä¸¤èº«ä¸Šï¼Œè€Œgotoxy()åæ ‡åªèƒ½æ˜¯int ï¼Œæ•…æ¯æ¬¡ç”¨old_x,old_yæ¥æ‰¿æ¥X,Y
 
-                ÒòÎªÊµÌåÅ×ÎïÏßÊÇÁ¬ĞøµÄ£¬Ã¿Ò»¶ÎÏ¸Î¢µÄÎ»ÒÆÀíÂÛÉÏÊÇÁ¬ĞøµÄ
+                å› ä¸ºå®ä½“æŠ›ç‰©çº¿æ˜¯è¿ç»­çš„ï¼Œæ¯ä¸€æ®µç»†å¾®çš„ä½ç§»ç†è®ºä¸Šæ˜¯è¿ç»­çš„
 
-                Òò´Ës1 ºÍ s2 ÀíÂÛÉÏÖ»»áÊÇ0ºÍ1ÒÔ¼°ÉÙÊı³öÏÖ2µÄÌø½Ú
+                å› æ­¤s1 å’Œ s2 ç†è®ºä¸Šåªä¼šæ˜¯0å’Œ1ä»¥åŠå°‘æ•°å‡ºç°2çš„è·³èŠ‚
 
-                s1=0:ÏÂ½µ½Ï¿ì         s2=0:Å×ÎïÏß¶¥¶Ë     ¶¼²»Îª0£ºÖĞ¼ä
+                s1=0:ä¸‹é™è¾ƒå¿«         s2=0:æŠ›ç‰©çº¿é¡¶ç«¯     éƒ½ä¸ä¸º0ï¼šä¸­é—´
 
      ------------------------------------------------------------*/
-     //X YÊÇdouble±äÁ¿Ôö¼Ó¾«×¼¶È£¬µ«×ø±ê¾ÍĞèÒªÇ¿ÖÆ×ª»»
+     //X Yæ˜¯doubleå˜é‡å¢åŠ ç²¾å‡†åº¦ï¼Œä½†åæ ‡å°±éœ€è¦å¼ºåˆ¶è½¬æ¢
 
-     //µ±XÔö¼ÓÒ»¸öµ¥Î»·½ÏòÊ±
-     //5*t*t + Vx t - 1= 0;½âÒ»Ôª¶ş´Î·½³Ì£¨ÕâÀïÅĞ¶Ï  Ôö¼Óºó¼õÉÙÈÔÈ»ÊÇ1    ¿ÉÄÜ»áÓĞ4ÖÖÇé¿ö:¦¤Á½½â£¬»¹ÓĞÏòÉÏÏòÏÂµÄ+/-1£©
-        ////////////XÔö¼ÓÒ»¸öµ¥Î»
+     //å½“Xå¢åŠ ä¸€ä¸ªå•ä½æ–¹å‘æ—¶
+     //5*t*t + Vx t - 1= 0;è§£ä¸€å…ƒäºŒæ¬¡æ–¹ç¨‹ï¼ˆè¿™é‡Œåˆ¤æ–­  å¢åŠ åå‡å°‘ä»ç„¶æ˜¯1    å¯èƒ½ä¼šæœ‰4ç§æƒ…å†µ:Î”ä¸¤è§£ï¼Œè¿˜æœ‰å‘ä¸Šå‘ä¸‹çš„+/-1ï¼‰
+        ////////////Xå¢åŠ ä¸€ä¸ªå•ä½
 
-    x1_t1 = (-Vx + sqrt(Vx * Vx + 20)) / 10;//ÏÂ½µ
+    x1_t1 = (-Vx + sqrt(Vx * Vx + 20)) / 10;//ä¸‹é™
     x2_t1 = (-Vx - sqrt(Vx * Vx + 20)) / 10;//<0
-    x3_t1 = (-Vx + sqrt(Vx * Vx - 20)) / 10;//ÉÏÉı
+    x3_t1 = (-Vx + sqrt(Vx * Vx - 20)) / 10;//ä¸Šå‡
     x4_t1 = (-Vx - sqrt(Vx * Vx - 20)) / 10;//>0
     if (Vx >= 0) {
         t1 = x1_t1;
@@ -328,17 +330,17 @@ void auto_change()
     }
 
 
-    //µ±YÔö¼ÓÒ»¸öµ¥Î»·½ÏòÊ±
+    //å½“Yå¢åŠ ä¸€ä¸ªå•ä½æ–¹å‘æ—¶
     t2 = 1.0 / fabs(Vy);
     s2 = Vx * t2 + 0.5 * g * t2 * t2;
-    //ÅĞ¶Ï×îÓÅÂ·Ïß
+    //åˆ¤æ–­æœ€ä¼˜è·¯çº¿
     if ((int)s1 == 0)
         flag = 1;
     else if ((int)s2 == 0)
         flag = 2;
     else
-        flag = s1 < s2 ? 1 : 2;//1,2Ìø½Ú
-    ////Ñ¡Ôñ×îÓÅÂ·Ïß
+        flag = s1 < s2 ? 1 : 2;//1,2è·³èŠ‚
+    ////é€‰æ‹©æœ€ä¼˜è·¯çº¿
     if (Vx >= 0) {
         if (flag == 1)
         {
@@ -370,12 +372,12 @@ void auto_change()
     }
 
     //////////////
-    //ÈôÓĞ¸üºÃµÄËã·¨£¬ÒÔÉÏÇøÓòÈÎÒâ¸Ä//
+    //è‹¥æœ‰æ›´å¥½çš„ç®—æ³•ï¼Œä»¥ä¸ŠåŒºåŸŸä»»æ„æ”¹//
    ///////////////
     old_x = (int)X;
     old_y = (int)Y;
 
-    //³£¹æµÄÅĞ¶ÏÅö×²   ¼ÓÈëÇ½½ÇÀïµÄÅö×²
+    //å¸¸è§„çš„åˆ¤æ–­ç¢°æ’   åŠ å…¥å¢™è§’é‡Œçš„ç¢°æ’
     if (map[old_x + 1][old_y] == wall && Vx >= 0 && map[old_x][old_y + 1] != wall && map[old_x][old_y - 1] != wall)
     {
         if (old_x != 39)
@@ -448,7 +450,7 @@ void auto_change()
         printf(" ");
         goal++;
         gotoxy(2, width + 2);
-        printf("µÃ·Ö:%5d", goal);
+        printf("å¾—åˆ†:%5d", goal);
     }
     else if (map[old_x][old_y - 1] == brick && Vy <= 0)
     {
@@ -469,16 +471,16 @@ void auto_change()
     }
     if (step >= max)
     {
-        if_miss = 1; //Èç¹û³¤¶È´óÓÚ×î³¤³¤¶È¾ÍÒª¿ªÊ¼´ÓÄ©Î²Ïû³ıÎ²½ÚµãÁË
+        if_miss = 1; //å¦‚æœé•¿åº¦å¤§äºæœ€é•¿é•¿åº¦å°±è¦å¼€å§‹ä»æœ«å°¾æ¶ˆé™¤å°¾èŠ‚ç‚¹äº†
     }
     step = step % max;
 
-    ////ÏŞÖÆ³¤¶È,ÉßµÄ¹ì¼£ÆäÊµÊÇ´øÑÕÉ«µÄ¡® ¡¯£¬ÓÃºÚÉ«µÄ¡® ¡¯Ò²°´¹ì¼£´òÓ¡£¬¼´¿É¡°ÏûÈ¥¡±Î²°Í
+    ////é™åˆ¶é•¿åº¦,è›‡çš„è½¨è¿¹å…¶å®æ˜¯å¸¦é¢œè‰²çš„â€˜ â€™ï¼Œç”¨é»‘è‰²çš„â€˜ â€™ä¹ŸæŒ‰è½¨è¿¹æ‰“å°ï¼Œå³å¯â€œæ¶ˆå»â€å°¾å·´
     if (if_miss == 1)
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
         gotoxy(s[step].y, s[step].x);
-        map[s[step].x][s[step].y]--;//¹ì¼£µã´æÈëmapÊı×éÄÜ·ÀÖ¹×Ô¼º³Ô×Ô¼º
+        map[s[step].x][s[step].y]--;//è½¨è¿¹ç‚¹å­˜å…¥mapæ•°ç»„èƒ½é˜²æ­¢è‡ªå·±åƒè‡ªå·±
         if (map[s[step].x][s[step].y] == air && !(s[step].x == 0 && s[step].y == 0))
         {
             gotoxy(s[step].y, s[step].x);
@@ -495,7 +497,7 @@ void auto_change()
         if (ch == 'q') {
             gotoxy(75, 2);
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
-            printf("·µ»Ø\n");
+            printf("è¿”å›\n");
             Sleep(1000);
             return;
         }
@@ -529,15 +531,15 @@ void auto_change()
         }
     }
     gotoxy(2, width + 3);
-    printf("ÉúÃü:%5d", life);
+    printf("ç”Ÿå‘½:%5d", life);
     if (life == 0)
     {
         return;
     }
     gotoxy(2, width + 4);
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
-    printf("³¤¶È:%5d", max);
-    Sleep(90 - old_x);//´òµãÆµÂÊ£¬Óë¸ß¶È·´Ïà¹Ø
+    printf("é•¿åº¦:%5d", max);
+    Sleep(90 - old_x);//æ‰“ç‚¹é¢‘ç‡ï¼Œä¸é«˜åº¦åç›¸å…³
 
 }
 void play_game()
@@ -546,12 +548,12 @@ void play_game()
     if_miss = 0;
     step = 0;
     color = 0;
-    max = 80;//ÉßÉí³¤¶È
+    max = 80;//è›‡èº«é•¿åº¦
 
-    //¿ªÊ¼Î»ÖÃ
+    //å¼€å§‹ä½ç½®
     X = (double)width - 4;
     Y = 4;
-    old_x = (int)x;//×ø±êÖ»ÄÜÕûÊı
+    old_x = (int)x;//åæ ‡åªèƒ½æ•´æ•°
     old_y = (int)y;
 
     s[step].x = old_x;
@@ -569,7 +571,7 @@ begin:ch = getch();
         {
             angle = (int)(ch - '1');
             gotoxy(length / 2, width + 11);
-            printf("%c,ÄúÑ¡ÔñµÄÊÇ%d¶È  ", ch, (int)C[angle]);
+            printf("%c,æ‚¨é€‰æ‹©çš„æ˜¯%dåº¦  ", ch, (int)C[angle]);
         }
         else {
             goto begin3;
@@ -582,11 +584,11 @@ begin:ch = getch();
         printf("                   ");
         Sleep(500);
         gotoxy(length / 2, width + 11);
-        printf("ÊäÈë´íÎó,ÇëÖØĞÂÊäÈë");
+        printf("è¾“å…¥é”™è¯¯,è¯·é‡æ–°è¾“å…¥");
         goto begin;
     }
-    // a=¦È*pi/180
-    Vx = -V * sin(C[angle] * PI / 180.0); //ËÙ¶ÈÏòÓÒÏòÏÂÎªÕı·½Ïò 
+    // a=Î¸*pi/180
+    Vx = -V * sin(C[angle] * PI / 180.0); //é€Ÿåº¦å‘å³å‘ä¸‹ä¸ºæ­£æ–¹å‘ 
     Vy = V * cos(C[angle] * PI / 180.0);
     Sleep(1300);
     while (1)
@@ -611,12 +613,12 @@ int main()
     HideCursor();
     ////////////
     gotoxy(0, 2);
-    printf("!!!!!Çë×¢Òâ!!!!!      \n");
-    printf("Îª·ÀÖ¹ÂÒÂë,ÇëÏÈÈ«ÆÁ!  \n");
-    printf("ËµÃ÷:                 \n");
-    printf("·½Î»:           wasd  \n");
-    printf("È·¶¨:           ¿Õ¸ñ  \n");
-    printf("------°´Á½´Î»Ø³µ¿ªÊ¼  \n");
+    printf("!!!!!è¯·æ³¨æ„!!!!!      \n");
+    printf("ä¸ºé˜²æ­¢ä¹±ç ,è¯·å…ˆå…¨å±!  \n");
+    printf("è¯´æ˜:                 \n");
+    printf("æ–¹ä½:           wasd  \n");
+    printf("ç¡®å®š:           ç©ºæ ¼  \n");
+    printf("------æŒ‰ä¸¤æ¬¡å›è½¦å¼€å§‹  \n");
     getchar();
     getchar();
     ///////menu_move////
@@ -655,7 +657,7 @@ begin1:menu_x = 18;
                 if_start = 1;break;
 
             }
-            if (ch == ' ' && flag == 2)//±à¼­µØÍ¼
+            if (ch == ' ' && flag == 2)//ç¼–è¾‘åœ°å›¾
             {
                 if_start = 0;break;
 
@@ -664,7 +666,7 @@ begin1:menu_x = 18;
             {
                 gotoxy(0, 0);
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
-                printf("ÕıÔÚÍË³öÓÎÏ·...\n");
+                printf("æ­£åœ¨é€€å‡ºæ¸¸æˆ...\n");
                 Sleep(1500);
                 exit(1);
             }
@@ -726,7 +728,7 @@ begin1:menu_x = 18;
         init();
         gotoxy(2, width + 2);
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
-        printf("1.×©¿é  2.Ç½Ìå  3.¿ÕÆø  4.·µ»Ø");
+        printf("1.ç –å—  2.å¢™ä½“  3.ç©ºæ°”  4.è¿”å›");
         for (i = 0;i <= width;i++)
             for (j = 0;j <= length;j++)
                 _map[i][j] = map[i][j];
@@ -765,14 +767,14 @@ begin1:menu_x = 18;
             if (ch == '4') {
                 gotoxy(70, 18);
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
-                printf("ÊÇ·ñ±£´æ? 1.Yes 2.No ,ÊäÈëºó°´»Ø³µÈ·¶¨\n");
+                printf("æ˜¯å¦ä¿å­˜? 1.Yes 2.No ,è¾“å…¥åæŒ‰å›è½¦ç¡®å®š\n");
             begin2:gotoxy(73, 19);
                 ch1 = getchar();
                 if (ch1 == '1') {
                     if_start = -1;
                     flag = 5;
                     gotoxy(75, 19);
-                    printf("±£´æ³É¹¦              ");
+                    printf("ä¿å­˜æˆåŠŸ              ");
                     Sleep(500);
                     goto begin1;
                 }
@@ -783,7 +785,7 @@ begin1:menu_x = 18;
                 }
                 else {
                     gotoxy(75, 19);
-                    printf("²»ÕıÈ·ÊäÈë,ÇëÖØĞÂÊäÈë");
+                    printf("ä¸æ­£ç¡®è¾“å…¥,è¯·é‡æ–°è¾“å…¥");
                     goto begin2;
                 }
             }
@@ -792,7 +794,7 @@ begin1:menu_x = 18;
                 gotoxy(zy, zx);
                 printf(" ");
             }
-            //Ë¢ĞÂ 
+            //åˆ·æ–° 
             for (i = 0;i <= width;i++)
                 for (j = 0;j <= length;j++)
                 {
@@ -813,7 +815,7 @@ begin1:menu_x = 18;
                 printf(" ");
             }
         gotoxy(75, 2);
-        printf("¾´ÇëÆÚ´ı");
+        printf("æ•¬è¯·æœŸå¾…");
         if_start = -1;
         Sleep(2000);
         goto begin1;

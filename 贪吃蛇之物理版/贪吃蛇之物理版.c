@@ -5,10 +5,11 @@
 
 2020.4.27:      菜单搞定..默认地图绘制中,自定义地图即将加入
 
+2020.5.6:       修复残影节点后期较多的bug,目前后期可能会有,但极少数(未知原因)
+                修复开始游戏后退出编辑地图重进游戏小车重复出现的bug
+                加入无敌模式,并增加开关                                     
+                加入音效,并增加开关      完善'更多'选项          
 目前bug: 1.菜单界面未知的显示少字
-         2.后期未知原因有及少数蛇身体节点残留
-         
-         CREATED      BY      JLHENRY.
 ------------------------------------------------------------------
 */
 #define _CRT_SECURE_NO_WARNINGS
@@ -38,8 +39,45 @@ double x4_t1;
 double s1, s2;
 double temp;
 double t1, t2;
-
-///////
+int  invin_swich = 0, music_swich = 1;
+///////music////////
+#define qdo 262
+#define qre 294
+#define qmi 330
+#define qfa 349
+#define qso 392
+#define qla 440
+#define qsi 494
+#define do 523
+#define re 578
+#define mi 659
+#define fa 698
+#define so 784
+#define la 880
+#define si 988
+#define do1 1046
+#define re1 1175
+#define mi1 1318
+#define fa1 1480
+#define so1 1568
+#define la1 1760
+#define si1 1976
+#define sqdo 277
+#define sqre 311
+#define sqfa 370
+#define sqso 415
+#define sqla 466
+#define sdo 554
+#define sre 622
+#define sfa 740
+#define sso 831
+#define sla 932
+#define sdo1 1046
+#define sre1 1245
+#define sfa1 1480
+#define sso1 1661
+#define sla1 1865
+#define pai 400
 struct Step //轨迹结构体
 {
     int x;
@@ -76,7 +114,17 @@ char End[200][800] = {
     {"###    #######   ##    ##   ## "},
     {"       ##   ##         ##      "},
     {"                               "},
-    {"     按 两 次 回 车 继 续      "}//期待加入 Created By J.Henry
+    {"     按 两 次 回 车 继 续      "}
+};
+char more[1000][1000] = {
+    {" 按空格键选择开启或关闭啊"},
+    {"<1>.无敌啊              "},
+    {"                        "},
+    {"<2>.音效啊              "},
+    {"                       "},
+    {"<3>.关于啊               "},
+    {"                       "},
+    {"<4>.返回啊               "},
 };
 void gotoxy(int x, int y) //坐标函数  在windows.h中   不过用时要加上这一段（固定）
 {
@@ -109,6 +157,72 @@ void angle_switch()
     gotoxy(length / 2, width + 10);
     printf("----按Q返回,按p暂停-------\n");
 }
+void music() {
+    Beep(do1, pai / 2);
+    Beep(re1, pai / 2);
+    Beep(mi1, pai / 2);
+    Beep(do1, pai / 2);
+    Beep(so1, pai * 1.5);
+    Beep(mi1, pai / 2);
+    Beep(re1, pai);
+    Beep(so1, pai);
+    Beep(re1, pai);
+    Beep(do1, pai / 2);
+    Beep(la, pai / 2);
+    Beep(mi1, pai * 1.5);
+    Beep(do1, pai / 2);
+    Beep(si, pai);
+    Sleep(pai);
+    Beep(si, pai);
+    Beep(la, pai);
+    Beep(si, pai);
+    Beep(do1, pai / 2);
+    Beep(re1, pai / 2);
+    Beep(so, pai);
+    Beep(do1, pai);
+    Beep(re1, pai / 2);
+    Beep(mi1, pai / 2);
+    Beep(fa1, pai);
+    Beep(fa1, pai / 2);
+    Beep(mi1, pai / 2);
+    Beep(re1, pai / 2);
+    Beep(do1, pai / 2);
+    Beep(re1, pai / 2);
+    Sleep(pai * 3);
+    Beep(do1, pai / 2);
+    Beep(re1, pai / 2);
+    Beep(mi1, pai / 2);
+    Beep(do1, pai / 2);
+    Beep(so1, pai * 1.5);
+    Beep(mi1, pai / 2);
+    Beep(re1, pai);
+    Beep(so1, pai);
+    Beep(re1, pai / 2);
+    Beep(re1, pai / 2);
+    Beep(do1, pai / 2);
+    Beep(la, pai / 2);
+    Beep(la, pai);
+    Beep(si, pai / 2);
+    Beep(do1, pai / 2);
+    Beep(so, pai);
+    Sleep(pai);
+    Beep(so, pai);
+    Beep(la, pai);
+    Beep(si, pai);
+    Beep(do1, pai / 2);
+    Beep(re1, pai / 2);
+    Beep(so, pai);
+    Beep(do1, pai);
+    Beep(re1, pai / 2);
+    Beep(mi1, pai / 2);
+    Beep(fa1, pai);
+    Beep(fa1, pai / 2);
+    Beep(mi1, pai / 2);
+    Beep(re1, pai / 2);
+    Beep(do1, pai / 2);
+    Beep(do1, pai * 4);
+    Sleep(pai);
+}
 void end()
 {
     int i;
@@ -119,13 +233,47 @@ void end()
         printf("%s\n", End[i]);
         Sleep(100);
     }
-    getchar();
-    getchar();
-    return;
+    if (music_swich == 1) {
+        music();
+    }
+        getchar();
+        getchar();
+        return;   
 }
-void  menu()
+void about() {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+    for ( i = 0; i < width; i++)
+        for (j = 0;j < length;j++) {
+            gotoxy(j, i);
+            printf(" ");
+        }
+    gotoxy(0, 10);
+    printf("->游戏名<-:贪吃蛇之物理版                                              \n");
+    printf("                                                                       \n");
+    printf("->版本<-: 1.1                                                          \n");
+    printf("                                                                       \n");
+    printf("->作者<-: JLHENRY                                                      \n");
+    printf("                                                                       \n");
+    printf("->更新<-: 修复残影节点后期较多的bug,目前后期可能会有,但极少数(未知原因)\n");
+    printf("          修复开始游戏后退出编辑地图重进游戏小车重复出现的bug          \n");
+    printf("          加入无敌模式,并增加开关                                      \n");
+    printf("          加入音效,并增加开关                                          \n");
+    printf("          完善'更多'选项                                               \n");
+    printf("                                                                       \n");
+    printf("      -- 下面是我的社交账号,欢迎大家积极反馈--                         \n");
+    printf("      -- 按回车继续浏览--                                              \n");
+    printf("                                                                       \n");
+    getchar();
+    printf("->我的博客园<-: https://www.cnblogs.com/JLHENRY/                       \n");
+    Sleep(1500);
+    printf("                                                                       \n");
+    printf("->我的git   <-: https://github.com/JLHENRY-pixel                       \n");  
+    printf("                                                                       \n");
+    printf("      -- 按回车返回--                                                  \n");
+    getchar();
+}
+void menu()
 {
-    char temp;
     char menu[40][40] = {
     {"     <--------------->     "},
     {"     <  打砖块哈     >     "},
@@ -173,7 +321,7 @@ void init()
         { //生成地图模板并把坐标放入map中
             for (j = 0; j <= length; j++)
             {
-                if (i == 0 || i == width || j == 0 || j == length || i == 39 && j >= left && j <= right || (i == width / 3 || i == 2 * width / 3) && (j >= 63 && j <= 87))
+                if (i == 0 || i == width || j == 0 || j == length || i == 39 && j >= left && j <= right || (i == 2 * width / 3) && (j >= 63 && j <= 87))
                     map[i][j] = wall;
 
                 else
@@ -200,19 +348,24 @@ void init()
             for (j = 0; j <= length; j++)
             {
                 map[i][j] = _map[i][j];
+                if (i == 39 && j >= left && j <= right)
+                    map[i][j] = wall;
             }
         }
 
     }
     if (if_start == 1)
     {
-        food_num = 100;
+        food_num = 60;
         while (food_num--)
         { //贪吃蛇生成食物
             a = rand() % width;
             b = rand() % length;
             if ((a >= width / 3 && a <= width * 2 / 3) && (b >= length * 2 / 5 && b <= length * 3 / 5) || a == 0 || b == 0 || a == width || b == length || map[a][b] == brick || map[a][b] == wall)
-                continue;//这里不放食物
+            {
+                food_num++;
+                continue;
+            }//这里不放食物
             else
                 map[a][b] = food;
         }
@@ -258,7 +411,10 @@ void init()
 }
 ///////////抛物线
 void auto_change()
-{
+{/*推测: 残余的节点不在轨迹结构体里面
+ 砖头被消算法也没问题,实锤是轨迹结构体混入brick导致.
+ 加入人为修正
+ */
 
     //蛇身颜色
     switch (color)
@@ -282,7 +438,9 @@ void auto_change()
     HideCursor();
     gotoxy(s[step].y, s[step].x);
     printf(" ");
-    map[s[step].x][s[step].y]++;//map此时作后台数组，节点坐标存入，防止自己吃自己
+    map[s[step].x][s[step].y]++;
+   
+    //map此时作后台数组，节点坐标存入，防止自己吃自己
     step++;
 
     /*-------------------------------------------------------
@@ -370,26 +528,30 @@ void auto_change()
             Vx = Vx + g * t2;
         }
     }
-
     //////////////
     //若有更好的算法，以上区域任意改//
    ///////////////
     old_x = (int)X;
     old_y = (int)Y;
-
     //常规的判断碰撞   加入墙角里的碰撞
     if (map[old_x + 1][old_y] == wall && Vx >= 0 && map[old_x][old_y + 1] != wall && map[old_x][old_y - 1] != wall)
     {
-        if (old_x != 39)
+        if (old_x == 39)
         {
             color = (color + 1) % 5;
             Vx = -Vx;
+            life--;
+            if (music_swich == 1) {
+                Beep(494, 10);
+            }
         }
         else
         {
             color = (color + 1) % 5;
             Vx = -Vx;
-            life--;
+            if (music_swich == 1) {
+                Beep(494, 10);
+            }
         }
 
     }
@@ -398,22 +560,34 @@ void auto_change()
     {
         color = (color + 1) % 5;
         Vx = -Vx;
+        if (music_swich == 1) {
+            Beep(494, 10);
+        }
     }
     else if (map[old_x][old_y - 1] == wall && Vy <= 0 && map[old_x - 1][old_y] != wall && map[old_x + 1][old_y] != wall)
     {
         color = (color + 1) % 5;
         Vy = -Vy;
+        if (music_swich == 1) {
+            Beep(494, 10);
+        }
     }
     else if (map[old_x][old_y + 1] == wall && Vy >= 0 && map[old_x - 1][old_y] != wall && map[old_x + 1][old_y] != wall)
     {
         color = (color + 1) % 5;
         Vy = -Vy;
+        if (music_swich == 1) {
+            Beep(494, 10);
+        }
     }
-    else if (map[old_x + 1][old_y + 1] == wall && Vx > 0 && Vy > 0 || map[old_x + 1][old_y - 1] == wall && Vx > 0 && Vy < 0 || map[old_x - 1][old_y + 1] == wall && Vx < 0 && Vy>0 || map[old_x - 1][old_y - 1] == wall && Vx < 0 && Vy < 0)
+    else if ((map[old_x + 1][old_y + 1] == wall && Vx > 0 && Vy > 0) || (map[old_x + 1][old_y - 1] == wall && Vx > 0 && Vy < 0) || (map[old_x - 1][old_y + 1] == wall && Vx < 0 && Vy>0) || (map[old_x - 1][old_y - 1] == wall && Vx < 0 && Vy < 0))
     {
-        color = (color + 1) % 5;
-        Vy = -Vy;
         Vx = -Vx;
+        Vy = -Vy;
+        color = (color + 1) % 5;
+        if (music_swich == 1) {
+            Beep(494, 10);
+        }
     }
     ////////////
     if (map[old_x + 1][old_y] == brick && Vx >= 0)
@@ -427,6 +601,9 @@ void auto_change()
         goal++;
         gotoxy(2, width + 2);
         printf("goal:%5d", goal);
+        if (music_swich == 1) {
+            Beep(523, 10);
+        }
     }
     else if (map[old_x - 1][old_y] == brick && Vx <= 0)
     {
@@ -439,6 +616,9 @@ void auto_change()
         goal++;
         gotoxy(2, width + 2);
         printf("goal:%5d", goal);
+        if (music_swich == 1) {
+            Beep(523, 10);
+        }
     }
     else if (map[old_x][old_y + 1] == brick && Vy >= 0)
     {
@@ -451,6 +631,9 @@ void auto_change()
         goal++;
         gotoxy(2, width + 2);
         printf("得分:%5d", goal);
+        if (music_swich == 1) {
+            Beep(523, 10);
+        }
     }
     else if (map[old_x][old_y - 1] == brick && Vy <= 0)
     {
@@ -463,12 +646,16 @@ void auto_change()
         goal++;
         gotoxy(2, width + 2);
         printf("goal:%5d", goal);
+        if (music_swich == 1) {
+            Beep(523, 10);
+        }
     }
     else if (map[old_x][old_y] == food)
     {
         map[old_x][old_y] = air;
         max++;
     }
+    
     if (step >= max)
     {
         if_miss = 1; //如果长度大于最长长度就要开始从末尾消除尾节点了
@@ -480,8 +667,8 @@ void auto_change()
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
         gotoxy(s[step].y, s[step].x);
-        map[s[step].x][s[step].y]--;//轨迹点存入map数组能防止自己吃自己
-        if (map[s[step].x][s[step].y] == air && !(s[step].x == 0 && s[step].y == 0))
+        map[s[step].x][s[step].y]--;
+        if (map[s[step].x][s[step].y] == air&& !(s[step].x == 0 && s[step].y == 0))
         {
             gotoxy(s[step].y, s[step].x);
             printf("%c", air);
@@ -502,45 +689,76 @@ void auto_change()
             return;
         }
         if (ch == 'p')
-            getch();
-        if (ch == 'a' && map[39][left - 1] != wall)
-        {
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 60);
-            gotoxy(left - 1, 39);
-            printf("%c", wall);
-            gotoxy(right, 39);
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
-            printf("%c", air);
-            map[39][left - 1] = wall;
-            map[39][right] = air;
-            left--;
-            right--;
-        }
-        if (ch == 'd' && map[39][right + 1] != wall)
-        {
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 60);
-            gotoxy(right + 1, 39);
-            printf("%c", wall);
-            gotoxy(left, 39);
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
-            printf("%c", air);
-            map[39][right + 1] = wall;
-            map[39][left] = air;
-            right++;
-            left++;
-        }
+            getch();       
     }
     gotoxy(2, width + 3);
-    printf("生命:%5d", life);
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+    if(invin_swich==0)
+        printf("生命:%5d", life);
+    else
+        printf("生命: 无敌");
     if (life == 0)
     {
         return;
     }
-    gotoxy(2, width + 4);
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+    gotoxy(2, width + 4);  
     printf("长度:%5d", max);
-    Sleep(90 - old_x);//打点频率，与高度反相关
+    Sleep(90-2*old_x);//打点频率，与高度反相关
 
+}
+void man_change() {
+    if (_kbhit())
+    {
+        ch = getch();
+        if (ch == 'a' && map[39][left - 1] != wall)
+        {
+            left--;
+            right--;
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 60);
+            for (i = left;i <= right;i++) {
+                gotoxy(i, 39);
+                printf("%c", wall);
+            }
+            gotoxy(right + 1, 39);
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+            printf("%c", air);
+            map[39][left] = wall;
+            map[39][right + 1] = air;
+
+        }
+        if (ch == 'd' && map[39][right + 1] != wall)
+        {
+            right++;
+            left++;
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 60);
+            for (i = left;i <= right;i++) {
+                gotoxy(i, 39);
+                printf("%c", wall);
+            }
+            gotoxy(left - 1, 39);
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+            printf("%c", air);
+            map[39][right] = wall;
+            map[39][left - 1] = air;
+        }
+    }
+}
+void auto_correct() 
+{
+    for (i = 0;i <= step;i++) 
+    {
+        if (map[s[i].x][s[i].y] == brick)
+        {
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+            gotoxy(s[i].y, s[i].x);
+            printf(" ");
+            map[s[i].x][s[i].y] = air;
+        }
+        else
+        {
+            continue;
+        }
+    }
 }
 void play_game()
 {
@@ -558,8 +776,7 @@ void play_game()
 
     s[step].x = old_x;
     s[step].y = old_y;
-    system("mode con cols=180 lines=60");
-    system("color 07");
+   
     init();
     gotoxy(length / 2, width + 3);
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
@@ -594,6 +811,9 @@ begin:ch = getch();
     while (1)
     {
         auto_change();
+        man_change();
+        auto_correct();
+       
         if (ch == 'q')
             break;
         if (life == 0) {
@@ -682,7 +902,10 @@ begin1:menu_x = 18;
     ///////game_move////////
     if (if_start == 1)
     {
-        life = 3;
+        if (invin_swich == 0)
+            life = 3;
+        else
+            life = 1000;
         left = 1;
         right = 21;
         play_game();
@@ -730,8 +953,18 @@ begin1:menu_x = 18;
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
         printf("1.砖块  2.墙体  3.空气  4.返回");
         for (i = 0;i <= width;i++)
-            for (j = 0;j <= length;j++)
-                _map[i][j] = map[i][j];
+            for (j = 0;j <= length;j++) {
+                if (i != 39) {
+                    _map[i][j] = map[i][j];
+                }
+                else
+                {
+                    if (j == 0 || j == length)
+                        _map[39][j] = wall;
+                    else
+                        _map[39][j] = air;
+                }
+            }
 
         while (1)
         {
@@ -807,17 +1040,104 @@ begin1:menu_x = 18;
     ///////more information////
     if (if_start == 2)
     {
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+        int more_x=14, more_y=64, mx=more_x, my=more_y;
         for (i = 0;i <= 40;i++)
             for (j = 0;j <= 150;j++)
             {
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
                 gotoxy(j, i);
                 printf(" ");
             }
-        gotoxy(75, 2);
-        printf("敬请期待");
+
+        for (i = 13;i <= 23;i++)
+            for (j = 63;j <= 91;j++) {
+                gotoxy(j, i);
+                printf("%c", more[i - 13][j - 63]);
+            }
+        
+        while (1)
+        {
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+            gotoxy(my, mx);
+            printf("%c", more[mx - 13][my - 63]);
+            if (more_x >= 14 && more_x <= 21) 
+            {
+                gotoxy(more_y, more_x);
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 60);
+                printf(" ");
+            }
+           
+            ch = getch();
+            if (ch == 'w')
+            {
+                mx = more_x;
+                more_x -= 2;
+            }
+            if (ch == 's')
+            {
+                mx = more_x;
+                more_x += 2;
+            }
+            int flag = more[more_x - 13][more_y - 63] - '0';
+            if (ch == ' ' && flag == 1)
+            {
+                if (invin_swich == 0) {
+                    gotoxy(more_y +10,more_x);
+                    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+                    printf("ON ");
+                    invin_swich = 1;
+                    continue;
+                }
+                if (invin_swich == 1) {
+                    gotoxy(more_y + 10,more_x);
+                    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+                    printf("OFF");
+                    invin_swich = 0;
+                    continue;
+                }
+            }
+            if (ch == ' ' && flag == 2)
+            {
+                if (music_swich == 0) {
+                    gotoxy(more_y + 10,more_x);
+                    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+                    printf("ON ");
+                    music_swich = 1;
+                    continue;
+                }
+                if (music_swich == 1) {
+                    gotoxy(more_y + 10,more_x);
+                    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+                    printf("OFF");
+                    music_swich = 0;
+                    continue;
+                }
+
+            }
+            if (ch == ' ' && flag == 3)
+            {
+                about();
+                for (i = 0;i <= 40;i++)
+                    for (j = 0;j <= 150;j++)
+                    {
+                        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+                        gotoxy(j, i);
+                        printf(" ");
+                    }
+
+                for (i = 13;i <= 23;i++)
+                    for (j = 63;j <= 91;j++) {
+                        gotoxy(j, i);
+                        printf("%c", more[i - 13][j - 63]);
+                    }
+                continue;
+            }
+            if (ch == ' ' && flag == 4)                     
+                break;
+              
+        }
         if_start = -1;
-        Sleep(2000);
+        Sleep(500);
         goto begin1;
     }
 }

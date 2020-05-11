@@ -8,7 +8,8 @@
 2020.5.6:       修复残影节点后期较多的bug,目前后期可能会有,但极少数(未知原因)
                 修复开始游戏后退出编辑地图重进游戏小车重复出现的bug
                 加入无敌模式,并增加开关                                     
-                加入音效,并增加开关      完善'更多'选项          
+                加入音效,并增加开关      完善'更多'选项
+2020.5.11:      彻底修复节点残余bug,经多次测试,暂未发现节点残余.                
 目前bug: 1.菜单界面未知的显示少字
 ------------------------------------------------------------------
 */
@@ -254,7 +255,7 @@ void about() {
     printf("                                                                       \n");
     printf("->作者<-: JLHENRY                                                      \n");
     printf("                                                                       \n");
-    printf("->更新<-: 修复残影节点后期较多的bug,目前后期可能会有,但极少数(未知原因)\n");
+    printf("->更新<-: 彻底修复节点残余bug,经多次测试,暂未发现节点残余.              \n");
     printf("          修复开始游戏后退出编辑地图重进游戏小车重复出现的bug          \n");
     printf("          加入无敌模式,并增加开关                                      \n");
     printf("          加入音效,并增加开关                                          \n");
@@ -668,7 +669,7 @@ void auto_change()
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
         gotoxy(s[step].y, s[step].x);
         map[s[step].x][s[step].y]--;
-        if (map[s[step].x][s[step].y] == air&& !(s[step].x == 0 && s[step].y == 0))
+        if ((map[s[step].x][s[step].y] == air||map[s[step].x][s[step].y] == food)&& !(s[step].x == 0 && s[step].y == 0))
         {
             gotoxy(s[step].y, s[step].x);
             printf("%c", air);

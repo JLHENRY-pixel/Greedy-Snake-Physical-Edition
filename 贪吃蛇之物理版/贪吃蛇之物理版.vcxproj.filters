@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="贪吃蛇之物理版.c">
+    <ClCompile Include="抛物线demo.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="抛物线demo.c">
+    <ClCompile Include="抛物线之跳跳蛇.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

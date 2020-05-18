@@ -16,7 +16,7 @@ int width = 40, length = 150;
 char map[1000][1000];
 int i, j, old_x, old_y, flag, color, if_miss, step, max;
 double x, y, Vx, Vy, s1, s2, X, Y;//Vx纵向，Vy横向
-char wall = '#', air = ' ';
+char wall = '#', air = ' ',brick='&';
 double C[8] = { 0, 10, 30,45,70, 90 };
 int flag = 1;
 double x1_t1;
@@ -74,12 +74,23 @@ void init()
     { //生成地图模板并把坐标放入map中
         for (j = 0; j <= length; j++)
         {
-            if (i == 0 || i == width || j == 0 || j == length)
+            if (i == 0 || i == width || j == 0 || j == length  || (i == 2 * width / 3) && (j >= 63 && j <= 87))
                 map[i][j] = wall;
 
 
             else
                 map[i][j] = air;
+        }
+    }
+    for (i = 0; i <= width; i++)
+    { //布置砖块brick
+        for (j = 0; j <= length; j++)
+        {
+
+            if (((i >= 20 && i <= 22) && (j >= 1 && j <= 50)) || ((i >= 20 && i <= 22) && (j >= 100 && j <= 149)))
+                map[i][j] = brick;
+            if ((i == 10 || i == 11) && ((j >= 1 && j <= 50) || (j >= 100 && j <= 149)))
+                map[i][j] = brick;
         }
     }
 
@@ -102,7 +113,11 @@ void init()
                 SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);//air
                 printf("%c", air);
             }
-
+            if (map[i][j] == brick)
+            {
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 80);
+                printf("%c", brick);
+            }
 
 
         }
@@ -237,11 +252,11 @@ void sport()
 
     //常规的判断碰撞   加入墙角里的碰撞
     if (map[old_x + 1][old_y] == wall && Vx >= 0 && map[old_x][old_y + 1] != wall && map[old_x][old_y - 1] != wall)
-    {
-        color = (color + 1) % 5;
-        Vx = -Vx;
-
+    {    
+            color = (color + 1) % 5;
+            Vx = -Vx;
     }
+
     else if (map[old_x - 1][old_y] == wall && Vx <= 0 && map[old_x][old_y + 1] != wall && map[old_x][old_y - 1] != wall)
     {
         color = (color + 1) % 5;
@@ -257,13 +272,52 @@ void sport()
         color = (color + 1) % 5;
         Vy = -Vy;
     }
-    else if (map[old_x + 1][old_y + 1] == wall || map[old_x + 1][old_y - 1] == wall || map[old_x - 1][old_y + 1] == wall || map[old_x - 1][old_y - 1] == wall)
+    else if (map[old_x + 1][old_y + 1] == wall && Vx > 0 && Vy > 0 || map[old_x + 1][old_y - 1] == wall && Vx > 0 && Vy < 0 || map[old_x - 1][old_y + 1] == wall && Vx < 0 && Vy>0 || map[old_x - 1][old_y - 1] == wall && Vx < 0 && Vy < 0)
     {
         color = (color + 1) % 5;
         Vy = -Vy;
         Vx = -Vx;
     }
-
+    if (map[old_x + 1][old_y] == brick && Vx >= 0)
+    {
+        //color = (color + 1) % 5;
+        Vx = -Vx;
+        map[old_x + 1][old_y] = air;
+        gotoxy(old_y, old_x + 1);
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+        printf(" ");
+      
+    }
+    else if (map[old_x - 1][old_y] == brick && Vx <= 0)
+    {
+        //color = (color + 1) % 5;
+        Vx = -Vx;
+        map[old_x - 1][old_y] = air;
+        gotoxy(old_y, old_x - 1);
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+        printf(" ");
+      
+    }
+    else if (map[old_x][old_y + 1] == brick && Vy >= 0)
+    {
+        //color = (color + 1) % 5;
+        Vy = -Vy;
+        map[old_x][old_y + 1] = air;
+        gotoxy(old_y + 1, old_x);
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+        printf(" ");
+        
+    }
+    else if (map[old_x][old_y - 1] == brick && Vy <= 0)
+    {
+        //color = (color + 1) % 5;
+        Vy = -Vy;
+        map[old_x][old_y - 1] = air;
+        gotoxy(old_y - 1, old_x);
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 07);
+        printf(" ");
+       
+    }
     if (step >= max)
     {
         if_miss = 1; //如果长度大于最长长度就要开始从末尾消除尾节点了
